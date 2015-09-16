@@ -1,6 +1,7 @@
 var request = require('request')
   , cheerio = require('cheerio')
   , http = require('http')
+  , util = require('util')
   , ms = require('ms')
   ;
 
@@ -8,6 +9,13 @@ var urls = [
   'http://www.fandango.com/amcloewslincolnsquare13_aabqi/theaterpage?date=10/2/2015',
   // 'http://www.fandango.com/amcloewslincolnsquare13_aabqi/theaterpage?date=12/18/2015',
 ];
+
+if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
+  var mailgun = require('mailgun-js')({
+    apiKey: process.env.MAILGUN_API_KEY, 
+    domain: process.env.MAILGUN_DOMAIN
+  });
+}
 
 function curl() {
   urls.forEach(function(url) {
@@ -17,10 +25,16 @@ function curl() {
       var $ = cheerio.load(body);
       $('.showtimes-movie-title').each(function() {
         var title = $(this).text();
-        if (title.match(/martian/i)) {
-          console.log('Alert!');
-        } else if (title.match(/(star\s+wars|awakens)/i)) {
-          console.log('Alert!');
+        if (true || title.match(/martian/i) || title.match(/(star\s+wars|awakens)/i)) {
+          mailgun.messages().send({
+            from: process.env.EMAIL_FROM,
+            to: process.env.EMAIL_TO,
+            subject: util.format('Tickets found for %s!', title),
+            text: util.format('<a href="%s">%s</a>', url)
+          }, function (err) {
+            if (err) 
+              console.log(err);
+          });
         } else {
           console.log('No match for ' + title);
         }
