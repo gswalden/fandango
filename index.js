@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV != 'production') {
+  require('dotenv').load();
+}
+
 var request = require('request')
   , cheerio = require('cheerio')
   , http = require('http')
@@ -10,6 +14,7 @@ var request = require('request')
   , channel
   ;
 
+
 if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
   var mailgun = require('mailgun-js')({
     apiKey: process.env.MAILGUN_API_KEY,
@@ -17,10 +22,14 @@ if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
   });
 }
 
-slack.on('loggedIn', function() {
+slack.on('open', function() {
   channel = slack.getChannelByName('the-bot-awakens');
   setInterval(curl, ms('30min'));
   curl();
+}).on('message', function(message) {
+  console.log(message);
+}).on('error', function(err) {
+  console.log(err);
 });
 
 slack.login();
@@ -74,7 +83,7 @@ function curl() {
                   console.log(err);
               });
               if (movie.slack) {
-                channel.send(util.format('<@channel> Found tickets, I did!\n%s', theater.url));
+                channel.send(util.format('<!channel> Found tickets, I did!\n%s', theater.url));
               }
               return false;
             } else {
