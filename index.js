@@ -3,11 +3,15 @@ var request = require('request')
   , http = require('http')
   , util = require('util')
   , ms = require('ms')
+  , _ = require('lodash')
+  , Slack = require('slack-client')
+  , slack = new Slack(process.env.SLACK_TOKEN)
+  , channel = slack.getChannelByName('the-bot-awakens')
   ;
 
 if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
   var mailgun = require('mailgun-js')({
-    apiKey: process.env.MAILGUN_API_KEY, 
+    apiKey: process.env.MAILGUN_API_KEY,
     domain: process.env.MAILGUN_DOMAIN
   });
 }
@@ -25,10 +29,10 @@ function curl() {
       return;
     }
 
-    var urls = JSON.parse(body.files['urls.json'].content);
+    var theaters = JSON.parse(body.files['urls.json'].content);
 
-    urls.forEach(function(url) {
-      request(url, function(err, res, body) {
+    _.forEach(theaters, function(theater) {
+      request(theater.url, function(err, res, body) {
         if (err) return;
 
         var $ = cheerio.load(body);
@@ -39,18 +43,19 @@ function curl() {
               from: process.env.EMAIL_FROM,
               to: process.env.EMAIL_TO,
               subject: util.format('Tickets found for %s!', title),
-              text: url
+              text: theater.url
             }, function (err) {
-              if (err) 
+              if (err)
                 console.log(err);
             });
           } else {
             console.log('No match for ' + title);
+            channel.send(util.format('No tickets at %s, I found.', theater.name));
           }
         });
       });
     });
-  }); 
+  });
 }
 
 setInterval(curl, ms('30min'));
