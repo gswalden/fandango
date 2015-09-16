@@ -79,7 +79,7 @@ function curl() {
                   console.log(err);
               });
               if (movie.slack) {
-                channel.send(util.format('<!channel> Found tickets, I did!\n%s', theater.url));
+                channel.send(util.format('<!channel> Found, the tickets are!\n%s', theater.url));
               }
               slack.getDMByName('gregbot').send('Tickets! ' + theater.url);
               return false;
@@ -89,7 +89,7 @@ function curl() {
               // between 17:30 & 18:00
               var shouldBePosted = now.hour() >= 17 && now.minutes() >= 30 && now.hour() < 18;
               if (movie.slack && shouldBePosted) {
-                channel.send(util.format('Found no tickets, I did. _(searched %s)_', theater.name));
+                channel.send(util.format('Found no tickets, I have. _(searched %s)_', theater.name));
               }
             }
           });
