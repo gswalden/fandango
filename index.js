@@ -81,6 +81,7 @@ function curl() {
               if (movie.slack) {
                 channel.send(util.format('<!channel> Found tickets, I did!\n%s', theater.url));
               }
+              slack.getDMByName('gregbot').send('Tickets! ' + theater.url);
               return false;
             } else {
               console.log(util.format('No match for %s @ %s', movie.name, theater.name));
