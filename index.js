@@ -6,7 +6,7 @@ var request = require('request')
   , _ = require('lodash')
   , Slack = require('slack-client')
   , slack = new Slack(process.env.SLACK_TOKEN)
-  , channel = slack.getChannelByName('the-bot-awakens')
+  , channel
   ;
 
 if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
@@ -15,6 +15,10 @@ if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
     domain: process.env.MAILGUN_DOMAIN
   });
 }
+
+slack.on('loggedIn', function() {
+  channel = slack.getChannelByName('the-bot-awakens');
+});
 
 function curl() {
   request({
