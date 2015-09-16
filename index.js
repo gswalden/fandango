@@ -58,7 +58,7 @@ curl();
 
 var server = http.createServer(function(req, res) {
   res.end('Get in and get it!');
-}).listen(8000, function() {
+}).listen(process.env.PORT || 8000, function() {
   console.log('Listening…');
 });
 
