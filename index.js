@@ -81,7 +81,7 @@ function curl() {
               console.log(util.format('No match for %s @ %s', movie.name, theater.name));
               var now = moment().tz('America/New_York');
               // between 17:30 & 18:00
-              var shouldBePosted = now.hour() >= 12 && now.minutes() >= 30 && now.hour() < 13;
+              var shouldBePosted = now.hour() >= 17 && now.minutes() >= 30 && now.hour() < 18;
               if (movie.slack && shouldBePosted) {
                 channel.send(util.format('Found no tickets, I did. _(searched %s)_', theater.name));
               }
