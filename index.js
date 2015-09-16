@@ -1,6 +1,6 @@
 var request = require('request')
   , cheerio = require('cheerio')
-  // , http = require('http')
+  , http = require('http')
   , ms = require('ms')
   ;
 
@@ -33,9 +33,9 @@ setInterval(curl, ms('30min'));
 curl();
 
 
-// var server = http.createServer(function(req, res) {
-//   res.end('Get in and get it!');
-// }).listen(8000, function() {
-//   console.log('Listening…');
-// });
+var server = http.createServer(function(req, res) {
+  res.end('Get in and get it!');
+}).listen(8000, function() {
+  console.log('Listening…');
+});
 
