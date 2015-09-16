@@ -20,6 +20,8 @@ slack.on('loggedIn', function() {
   channel = slack.getChannelByName('the-bot-awakens');
 });
 
+slack.login();
+
 function curl() {
   request({
     uri: process.env.GIST_URL,
