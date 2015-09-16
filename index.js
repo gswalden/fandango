@@ -3,6 +3,7 @@ var request = require('request')
   , http = require('http')
   , util = require('util')
   , ms = require('ms')
+  , moment = require('moment-timezone')
   , _ = require('lodash')
   , Slack = require('slack-client')
   , slack = new Slack(process.env.SLACK_TOKEN)
@@ -24,6 +25,18 @@ slack.on('loggedIn', function() {
 
 slack.login();
 
+var movies = [
+  {
+    pattern: /(star\s+wars|awakens)/i,
+    name: 'Star Wars: The Force Awakens',
+    slack: true
+  },
+  {
+    pattern: /martian/i,
+    name: 'The Martian'
+  }
+];
+
 function curl() {
   request({
     uri: process.env.GIST_URL,
@@ -44,22 +57,36 @@ function curl() {
         if (err) return;
 
         var $ = cheerio.load(body);
+        var foundTitles = [];
         $('.showtimes-movie-title').each(function() {
-          var title = $(this).text();
-          if (title.match(/martian/i) || title.match(/(star\s+wars|awakens)/i)) {
-            mailgun.messages().send({
-              from: process.env.EMAIL_FROM,
-              to: process.env.EMAIL_TO,
-              subject: util.format('Tickets found for %s!', title),
-              text: theater.url
-            }, function (err) {
-              if (err)
-                console.log(err);
-            });
-          } else {
-            console.log('No match for ' + title);
-            channel.send(util.format('No tickets at %s, I found.', theater.name));
-          }
+          foundTitles.push($(this).text());
+        });
+        _.forEach(movies, function(movie) {
+          _.forEach(foundTitles, function(title) {
+            if (title.match(movie.pattern)) {
+              mailgun.messages().send({
+                from: process.env.EMAIL_FROM,
+                to: process.env.EMAIL_TO,
+                subject: util.format('Tickets found for %s!', title),
+                text: theater.url
+              }, function (err) {
+                if (err)
+                  console.log(err);
+              });
+              if (movie.slack) {
+                channel.send(util.format('<@channel> Found tickets, I did!\n%s', theater.url));
+              }
+              return false;
+            } else {
+              console.log(util.format('No match for %s @ %s', movie.name, theater.name));
+              var now = moment().tz('America/New_York');
+              // between 17:30 & 18:00
+              var shouldBePosted = now.hour() >= 12 && now.minutes() >= 30 && now.hour() < 13;
+              if (movie.slack && shouldBePosted) {
+                channel.send(util.format('Found no tickets, I did. _(searched %s)_', theater.name));
+              }
+            }
+          });
         });
       });
     });
