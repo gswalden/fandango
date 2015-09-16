@@ -27,7 +27,7 @@ slack.on('open', function() {
   setInterval(curl, ms('30min'));
   curl();
 }).on('message', function(message) {
-  console.log(message);
+  // console.log(message);
 }).on('error', function(err) {
   console.log(err);
 });
