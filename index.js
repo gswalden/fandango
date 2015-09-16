@@ -18,6 +18,8 @@ if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
 
 slack.on('loggedIn', function() {
   channel = slack.getChannelByName('the-bot-awakens');
+  setInterval(curl, ms('30min'));
+  curl();
 });
 
 slack.login();
@@ -63,9 +65,6 @@ function curl() {
     });
   });
 }
-
-setInterval(curl, ms('30min'));
-curl();
 
 var server = http.createServer(function(req, res) {
   res.end('Get in and get it!');
