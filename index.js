@@ -39,10 +39,6 @@ var movies = [
     pattern: /(star\s+wars|awakens)/i,
     name: 'Star Wars: The Force Awakens',
     slack: true
-  },
-  {
-    pattern: /martian/i,
-    name: 'The Martian'
   }
 ];
 
